@@ -9,6 +9,8 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+type envelope map[string]any
+
 // doesnt have to be a method on application, just for consistency
 func (app *application) readIDParam(r *http.Request) (int, error) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
@@ -19,7 +21,7 @@ func (app *application) readIDParam(r *http.Request) (int, error) {
 	return id, nil
 }
 
-func (app *application) writeJSON(w http.ResponseWriter, status int, data any, headers http.Header) error {
+func (app *application) writeJSON(w http.ResponseWriter, status int, data envelope, headers http.Header) error {
 	js, err := json.Marshal(data)
 	if err != nil {
 		return err

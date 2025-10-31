@@ -3,6 +3,9 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"time"
+
+	"github.com/Infamous003/greenlight/internal/data"
 )
 
 func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Request) {
@@ -15,5 +18,21 @@ func (app *application) showMovieHandler(w http.ResponseWriter, r *http.Request)
 		http.NotFound(w, r)
 		return
 	}
-	fmt.Fprintf(w, "show the details of the movie %d\n", id)
+	// Creating a movie instance
+	movie := data.Movie{
+		ID:        id,
+		CreatedAt: time.Now(),
+		Title:     "Pirates of the Caribbean",
+		Year:      2003,
+		Runtime:   118,
+		Genres:    []string{"fantasy", "thriller", "pirates"},
+		Version:   1,
+	}
+
+	// encoding the struct to responsewriter
+	err = app.writeJSON(w, http.StatusOK, envelope{"movie": movie}, nil)
+	if err != nil {
+		app.logger.Error(err.Error())
+		http.Error(w, "The server encountered a proble and could not process your request", http.StatusInternalServerError)
+	}
 }
