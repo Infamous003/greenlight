@@ -37,7 +37,9 @@ func main() {
 	}
 
 	r := chi.NewRouter()
-	r.Get("/v1/healthcheck", app.healthcheckHandler)
+
+	appRouter := app.routes()
+	r.Mount("/api", appRouter) // appending `/api/` to all the appROuter endpoints
 
 	s := &http.Server{
 		Addr:         fmt.Sprintf(":%d", cfg.port),
