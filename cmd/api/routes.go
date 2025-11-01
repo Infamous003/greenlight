@@ -7,8 +7,10 @@ import (
 )
 
 // Creates a router, registeres all API routes, and returns it
+// refer Panic recovery chapter, pg 74
 func (app *application) routes() http.Handler {
 	router := chi.NewRouter()
+	router.Use(app.recoverPanic)
 
 	// overwriting the default repsponses with custom ones
 	router.NotFound(app.notFoundResponse)
