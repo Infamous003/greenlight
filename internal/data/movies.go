@@ -1,10 +1,31 @@
 package data
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/Infamous003/greenlight/internal/validator"
 )
+
+type MovieModel struct {
+	DB *sql.DB
+}
+
+func (m *MovieModel) Insert(movie *Movie) error {
+	return nil
+}
+
+func (m MovieModel) Get(id int) (*Movie, error) {
+	return nil, nil
+}
+
+func (m MovieModel) Update(movie *Movie) error {
+	return nil
+}
+
+func (m MovieModel) Delete(id int) error {
+	return nil
+}
 
 type Movie struct {
 	ID        int       `json:"id"`
