@@ -69,7 +69,7 @@ func main() {
 	r := chi.NewRouter()
 
 	appRouter := app.routes()
-	r.Mount("/api", appRouter) // appending `/api/` to all the appROuter endpoints
+	r.Mount("/api/v1", appRouter) // appending `/api/` to all the appROuter endpoints
 
 	s := &http.Server{
 		Addr:         fmt.Sprintf(":%d", cfg.port),

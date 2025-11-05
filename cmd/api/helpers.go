@@ -15,8 +15,8 @@ import (
 type envelope map[string]any
 
 // doesnt have to be a method on application, just for consistency
-func (app *application) readIDParam(r *http.Request) (int, error) {
-	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+func (app *application) readIDParam(r *http.Request) (int64, error) {
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 
 	if err != nil || id < 1 {
 		return 0, errors.New("invalid id parmater")
