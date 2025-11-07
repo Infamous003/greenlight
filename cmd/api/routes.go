@@ -21,6 +21,7 @@ func (app *application) routes() http.Handler {
 	router.Get("/movies/{id}", app.showMovieHandler)
 	router.Patch("/movies/{id}", app.updateMovieHandler)
 	router.Delete("/movies/{id}", app.deleteMovieHandler)
+	router.Get("/movies", app.listMoviesHandler)
 
 	return router
 }

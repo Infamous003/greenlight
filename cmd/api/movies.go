@@ -176,3 +176,48 @@ func (app *application) deleteMovieHandler(w http.ResponseWriter, r *http.Reques
 		app.serverErrorResponse(w, r, err)
 	}
 }
+
+func (app *application) listMoviesHandler(w http.ResponseWriter, r *http.Request) {
+	// this input will store all the expected query values from the request
+	var input struct {
+		Title   string
+		Genres  []string
+		Filters data.Filters
+		// Page     int
+		// PageSize int
+		// Sort     string
+	}
+
+	v := validator.New()
+
+	// This returns the query string
+	qs := r.URL.Query()
+
+	input.Title = app.readString(qs, "title", "")
+	input.Genres = app.readCSV(qs, "genres", []string{})
+
+	input.Filters.Page = app.readInt(qs, "page", 1, v)
+	input.Filters.PageSize = app.readInt(qs, "page_size", 20, v)
+
+	input.Filters.Sort = app.readString(qs, "sort", "id")
+
+	input.Filters.SortSafeList = []string{"id", "title", "runtime", "-id", "-title", "-year", "-runtime"}
+
+	data.ValidateFilters(v, input.Filters)
+
+	if !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	movies, err := app.models.Movies.GetAll(input.Title, input.Genres, input.Filters)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"movies": movies}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}

@@ -6,9 +6,11 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 
+	"github.com/Infamous003/greenlight/internal/validator"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -100,4 +102,47 @@ func (app *application) ReadJSON(w http.ResponseWriter, r *http.Request, dst any
 		return errors.New("body must only contain a single JSON value")
 	}
 	return nil
+}
+
+// Takes in the url values with a key, it looks up if key is in url values,
+// if yes, it returns it, else, it returns the defaultValue provided
+func (app *application) readString(qs url.Values, key string, defaultValue string) string {
+	s := qs.Get(key)
+
+	if s == "" {
+		return defaultValue
+	}
+	return s
+}
+
+// Checks if there are comma separated values in the url string
+// if yes, then it returns a list of those csv separated by comma
+// else returns a default value
+func (app *application) readCSV(qs url.Values, key string, defaultValue []string) []string {
+	csv := qs.Get(key)
+
+	if csv == "" {
+		return defaultValue
+	}
+
+	return strings.Split(csv, ",")
+}
+
+// reads url values, tries to convert it to an integer
+// if it cannot be converted, it adds an error using validator, returning default value
+// else returns the integral value
+func (app *application) readInt(qs url.Values, key string, defaultValue int, v *validator.Validator) int {
+	s := qs.Get(key)
+
+	if s == "" {
+		return defaultValue
+	}
+
+	i, err := strconv.Atoi(s)
+	if err != nil {
+		v.AddError(key, "must be an integer")
+		return defaultValue
+	}
+
+	return i
 }
