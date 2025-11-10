@@ -12,6 +12,9 @@ func (app *application) routes() http.Handler {
 	router := chi.NewRouter()
 	router.Use(app.recoverPanic)
 
+	// rate limiter middleware
+	router.Use(app.rateLimiter)
+
 	// overwriting the default repsponses with custom ones
 	router.NotFound(app.notFoundResponse)
 	router.MethodNotAllowed(app.methodNotAllowedResponse)
