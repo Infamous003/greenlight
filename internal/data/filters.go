@@ -13,6 +13,14 @@ type Filters struct {
 	SortSafeList []string // contains all the available sort options, like year, title, genres, etc
 }
 
+type Metadata struct {
+	CurrentPage  int `json:"current_page,omitzero"`
+	PageSize     int `json:"page_size,omitzero"`
+	FirstPage    int `json:"first_page,omitzero"`
+	LastPage     int `json:"last_page,omitzero"`
+	TotalRecords int `json:"total_records,omitzero"`
+}
+
 func ValidateFilters(v *validator.Validator, f Filters) {
 	v.Check(f.Page > 0, "page", "must be greater than 0")
 	v.Check(f.Page <= 10000000, "page", "must be lesser than 10 million")
@@ -47,4 +55,18 @@ func (f *Filters) limit() int {
 
 func (f *Filters) offset() int {
 	return (f.Page - 1) * f.PageSize
+}
+
+func caclulateMetadata(totalRecords, page, pageSize int) Metadata {
+	if totalRecords == 0 {
+		return Metadata{}
+	}
+
+	return Metadata{
+		CurrentPage:  page,
+		PageSize:     pageSize,
+		FirstPage:    1,
+		LastPage:     (totalRecords + pageSize - 1) / pageSize,
+		TotalRecords: totalRecords,
+	}
 }
