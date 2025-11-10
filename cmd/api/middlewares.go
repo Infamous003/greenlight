@@ -52,27 +52,29 @@ func (app *application) rateLimiter(next http.Handler) http.Handler {
 	}()
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// getting the client IP, we're using realip package, cause sometimes the IP could be that of loadbalancer or nginx, but we want the client's real IP
-		// realip helps us get the actual client's ip if present, else defaults
-		ip := realip.FromRequest(r)
+		if app.config.limiter.enabled {
+			// getting the client IP, we're using realip package, cause sometimes the IP could be that of loadbalancer or nginx, but we want the client's real IP
+			// realip helps us get the actual client's ip if present, else defaults
+			ip := realip.FromRequest(r)
 
-		mu.Lock() // locking the resource(clients map, this would be redis in prod)
+			mu.Lock() // locking the resource(clients map, this would be redis in prod)
 
-		// if client's IP doesnt already exists in the map, then we add one
-		if _, found := clients[ip]; !found {
-			clients[ip] = &client{limiter: rate.NewLimiter(2, 4)}
-		}
+			// if client's IP doesnt already exists in the map, then we add one
+			if _, found := clients[ip]; !found {
+				clients[ip] = &client{limiter: rate.NewLimiter(rate.Limit(app.config.limiter.rps), app.config.limiter.burst)}
+			}
 
-		clients[ip].lastSeen = time.Now()
+			clients[ip].lastSeen = time.Now()
 
-		// If client ran out of tokens, give back err resp
-		if !clients[ip].limiter.Allow() {
+			// If client ran out of tokens, give back err resp
+			if !clients[ip].limiter.Allow() {
+				mu.Unlock()
+				app.rateLimitExceededResponse(w, r)
+				return
+			}
+
 			mu.Unlock()
-			app.rateLimitExceededResponse(w, r)
-			return
 		}
-
-		mu.Unlock()
 		next.ServeHTTP(w, r)
 	})
 }
