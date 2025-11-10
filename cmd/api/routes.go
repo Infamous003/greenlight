@@ -19,12 +19,12 @@ func (app *application) routes() http.Handler {
 	router.NotFound(app.notFoundResponse)
 	router.MethodNotAllowed(app.methodNotAllowedResponse)
 
-	router.Get("/healthcheck", app.healthcheckHandler)
-	router.Post("/movies", app.createMovieHandler)
-	router.Get("/movies/{id}", app.showMovieHandler)
-	router.Patch("/movies/{id}", app.updateMovieHandler)
-	router.Delete("/movies/{id}", app.deleteMovieHandler)
-	router.Get("/movies", app.listMoviesHandler)
+	router.Get("/v1/healthcheck", app.healthcheckHandler)
+	router.Post("/v1/movies", app.createMovieHandler)
+	router.Get("/v1/movies/{id}", app.showMovieHandler)
+	router.Patch("/v1/movies/{id}", app.updateMovieHandler)
+	router.Delete("/v1/movies/{id}", app.deleteMovieHandler)
+	router.Get("/v1/movies", app.listMoviesHandler)
 
 	return router
 }

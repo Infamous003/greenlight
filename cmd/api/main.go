@@ -4,14 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"flag"
-	"fmt"
 	"log/slog"
-	"net/http"
 	"os"
 	"time"
 
 	"github.com/Infamous003/greenlight/internal/data"
-	"github.com/go-chi/chi/v5"
 	_ "github.com/lib/pq"
 )
 
@@ -76,24 +73,11 @@ func main() {
 		models: data.NewModels(db), // injecting db to our models
 	}
 
-	r := chi.NewRouter()
-
-	appRouter := app.routes()
-	r.Mount("/api/v1", appRouter) // appending `/api/` to all the appROuter endpoints
-
-	s := &http.Server{
-		Addr:         fmt.Sprintf(":%d", cfg.port),
-		Handler:      r,
-		IdleTimeout:  5 * time.Second,
-		WriteTimeout: 10 * time.Second,
-		ErrorLog:     slog.NewLogLogger(logger.Handler(), slog.LevelError),
+	err = app.serve()
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
 	}
-
-	logger.Info("starting server", "addr", s.Addr, "env", cfg.env)
-
-	err = s.ListenAndServe()
-	logger.Error(err.Error())
-	os.Exit(1)
 }
 
 func openDB(cfg *config) (*sql.DB, error) {
