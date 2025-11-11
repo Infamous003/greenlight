@@ -13,6 +13,7 @@ var (
 // A single struct which holds all the models, like a container
 type Models struct {
 	Movies MovieModel
+	Users  UserModel
 }
 
 // we don't use pointers for `Models` or `MovieModel` cause they're
@@ -21,5 +22,6 @@ func NewModels(db *sql.DB) Models {
 	// initializing each model with a db
 	return Models{
 		Movies: MovieModel{DB: db},
+		Users:  UserModel{DB: db},
 	}
 }
