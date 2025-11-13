@@ -38,7 +38,15 @@ func (app *application) serve() error {
 
 		// shutdown may cause an error, so we send this to a channel
 		// if the ctx expires before the srv shutsdown, we need to grab that err
-		shutdownError <- srv.Shutdown(ctx)
+		err := srv.Shutdown(ctx)
+		if err != nil {
+			shutdownError <- srv.Shutdown(ctx)
+		}
+
+		app.logger.Info("completing background tasks", "addr", srv.Addr)
+
+		app.wg.Wait()
+		shutdownError <- nil
 	}()
 
 	app.logger.Info("starting server", "addr", srv.Addr, "env", app.config.env)

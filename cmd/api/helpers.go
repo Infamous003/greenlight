@@ -149,8 +149,12 @@ func (app *application) readInt(qs url.Values, key string, defaultValue int, v *
 
 // helps run a function in the backgroun, while also recovering any errors
 func (app *application) background(fn func()) {
+	app.wg.Add(1)
+
 	// this go routine helps recover errors
 	go func() {
+		defer app.wg.Done()
+
 		defer func() {
 			if err := recover(); err != nil {
 				app.logger.Error(fmt.Sprintf("%v", err))
