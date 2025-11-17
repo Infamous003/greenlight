@@ -27,6 +27,7 @@ func (app *application) routes() http.Handler {
 	router.Get("/v1/movies", app.listMoviesHandler)
 
 	router.Post("/v1/users", app.registerUserHandler)
+	router.Put("/v1/users/activated", app.activateUserHandler)
 
 	return router
 }

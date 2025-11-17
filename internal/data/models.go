@@ -14,6 +14,7 @@ var (
 type Models struct {
 	Movies MovieModel
 	Users  UserModel
+	Tokens TokenModel
 }
 
 // we don't use pointers for `Models` or `MovieModel` cause they're
@@ -23,5 +24,6 @@ func NewModels(db *sql.DB) Models {
 	return Models{
 		Movies: MovieModel{DB: db},
 		Users:  UserModel{DB: db},
+		Tokens: TokenModel{DB: db},
 	}
 }
