@@ -22,11 +22,12 @@ func (app *application) routes() http.Handler {
 	router.MethodNotAllowed(app.methodNotAllowedResponse)
 
 	router.Get("/v1/healthcheck", app.healthcheckHandler)
-	router.Post("/v1/movies", app.createMovieHandler)
-	router.Get("/v1/movies/{id}", app.showMovieHandler)
-	router.Patch("/v1/movies/{id}", app.updateMovieHandler)
-	router.Delete("/v1/movies/{id}", app.deleteMovieHandler)
-	router.Get("/v1/movies", app.listMoviesHandler)
+
+	router.Post("/v1/movies", app.requireActivatedUser(app.createMovieHandler))
+	router.Get("/v1/movies/{id}", app.requireActivatedUser(app.showMovieHandler))
+	router.Patch("/v1/movies/{id}", app.requireActivatedUser(app.updateMovieHandler))
+	router.Delete("/v1/movies/{id}", app.requireActivatedUser(app.deleteMovieHandler))
+	router.Get("/v1/movies", app.requireActivatedUser(app.listMoviesHandler))
 
 	router.Post("/v1/users", app.registerUserHandler)
 	router.Put("/v1/users/activated", app.activateUserHandler)
