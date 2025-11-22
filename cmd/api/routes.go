@@ -12,6 +12,8 @@ func (app *application) routes() http.Handler {
 	router := chi.NewRouter()
 	router.Use(app.recoverPanic)
 
+	router.Use(app.authenticate)
+
 	// rate limiter middleware
 	router.Use(app.rateLimiter)
 
