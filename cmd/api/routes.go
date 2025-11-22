@@ -29,5 +29,7 @@ func (app *application) routes() http.Handler {
 	router.Post("/v1/users", app.registerUserHandler)
 	router.Put("/v1/users/activated", app.activateUserHandler)
 
+	router.Post("/v1/tokens/authentication", app.createAuthenticationTokenHandler)
+
 	return router
 }
