@@ -12,9 +12,10 @@ var (
 
 // A single struct which holds all the models, like a container
 type Models struct {
-	Movies MovieModel
-	Users  UserModel
-	Tokens TokenModel
+	Movies      MovieModel
+	Users       UserModel
+	Tokens      TokenModel
+	Permissions PermissionModel
 }
 
 // we don't use pointers for `Models` or `MovieModel` cause they're
@@ -22,8 +23,9 @@ type Models struct {
 func NewModels(db *sql.DB) Models {
 	// initializing each model with a db
 	return Models{
-		Movies: MovieModel{DB: db},
-		Users:  UserModel{DB: db},
-		Tokens: TokenModel{DB: db},
+		Movies:      MovieModel{DB: db},
+		Users:       UserModel{DB: db},
+		Tokens:      TokenModel{DB: db},
+		Permissions: PermissionModel{DB: db},
 	}
 }
