@@ -1,6 +1,7 @@
 package main
 
 import (
+	"expvar"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -35,6 +36,8 @@ func (app *application) routes() http.Handler {
 	router.Put("/v1/users/activated", app.activateUserHandler)
 
 	router.Post("/v1/tokens/authentication", app.createAuthenticationTokenHandler)
+
+	router.Get("/v1/metrics", expvar.Handler().ServeHTTP)
 
 	return router
 }
