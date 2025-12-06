@@ -11,13 +11,12 @@ import (
 // refer Panic recovery chapter, pg 74
 func (app *application) routes() http.Handler {
 	router := chi.NewRouter()
+
+	// attaching middlewares in order
+	router.Use(app.metrics)
 	router.Use(app.recoverPanic)
-
 	router.Use(app.enableCORS)
-
 	router.Use(app.authenticate)
-
-	// rate limiter middleware
 	router.Use(app.rateLimiter)
 
 	// overwriting the default repsponses with custom ones
