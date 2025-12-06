@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"expvar"
 	"fmt"
 	"net/http"
 	"strings"
@@ -11,6 +10,7 @@ import (
 
 	"github.com/Infamous003/greenlight/internal/data"
 	"github.com/Infamous003/greenlight/internal/validator"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/tomasen/realip"
 	"golang.org/x/time/rate"
 )
@@ -195,22 +195,38 @@ func (app *application) enableCORS(next http.Handler) http.Handler {
 	})
 }
 
-func (app *application) metrics(next http.Handler) http.Handler {
-	var (
-		totalRequestsReceived           = expvar.NewInt("total_requests_received")
-		totalResponsesSent              = expvar.NewInt("total_responses_sent")
-		totalProcessingTimeMicroseconds = expvar.NewInt("total_processing_time_μs")
-	)
+// statusRecorder wraps ResponseWriter
+type statusRecorder struct {
+	http.ResponseWriter
+	status int
+}
 
+// When a handler calls WriteHeader, this wrapped WriteHeader is called instead
+// which also captures the status code
+func (r *statusRecorder) WriteHeader(code int) {
+	r.status = code
+	r.ResponseWriter.WriteHeader(code)
+}
+
+func (app *application) metrics(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 
-		totalRequestsReceived.Add(1)
-		next.ServeHTTP(w, r)
+		rw := statusRecorder{ResponseWriter: w, status: 200}
 
-		totalResponsesSent.Add(1)
+		next.ServeHTTP(&rw, r)
 
-		duration := time.Since(start).Microseconds()
-		totalProcessingTimeMicroseconds.Add(duration)
+		route := getRoutePattern(r)
+
+		httpRequestsTotal.With(prometheus.Labels{
+			"method": r.Method,
+			"route":  route,
+			"status": fmt.Sprint(rw.status),
+		}).Inc()
+
+		httpRequestDuration.With(prometheus.Labels{
+			"method": r.Method,
+			"route":  route,
+		}).Observe(float64(time.Since(start).Seconds()))
 	})
 }

@@ -1,10 +1,10 @@
 package main
 
 import (
-	"expvar"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 // Creates a router, registeres all API routes, and returns it
@@ -36,7 +36,7 @@ func (app *application) routes() http.Handler {
 
 	router.Post("/v1/tokens/authentication", app.createAuthenticationTokenHandler)
 
-	router.Get("/v1/metrics", expvar.Handler().ServeHTTP)
+	router.Handle("/v1/metrics", promhttp.Handler())
 
 	return router
 }
