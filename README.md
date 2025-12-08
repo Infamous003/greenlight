@@ -30,21 +30,8 @@ A production-ready backend API built with Go for managing movies data, handling 
 
 ---
 
-## 🛠️ Tech Stack
 
-| Layer | Technology |
-|-------|------------|
-| Language | Go |
-| Router | Chi |
-| Database | PostgreSQL |
-| Auth | JWT |
-| Email | SMTP |
-| Proxy | Caddy (planned) |
-| Deployment | Docker & Docker Compose |
-
----
-
-## 📁 Project Structure (simplified)
+## Project Structure (simplified)
 
 ```bash
 .
